@@ -1,6 +1,6 @@
 import './styles.css';
 import useData from './components/useData';
-import Marks from './components/Marks';
+import Map from './components/Map';
 
 const width = 960;
 const height = 500;
@@ -15,9 +15,10 @@ function App() {
   console.log(data);
 
   return (
-    <svg width={width} height={height}>
-      <Marks data={data} />
-    </svg>
+    <div width={width} height={height}>
+      <Map data={data} />
+    </div>
+    
   );
 }
 
