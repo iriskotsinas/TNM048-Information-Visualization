@@ -1,17 +1,30 @@
 //import { geoMiller, geoEquirectangular, geoNaturalEarth1, geoPath, geoGraticule } from 'd3';
 import * as d3 from "d3";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import statistics from '../data/country_vaccinations.csv';
 import * as topojson from 'topojson-client';
 
-const projection = d3.geoEquirectangular();
+// const projection = d3.geoEquirectangular();
+const projection = d3.geoMercator()
+    .center([0, 70]) //long and lat starting position
+    .scale(200) //starting zoom position
+    .rotate([10,0]); //where world split occurs
 const path = d3.geoPath(projection);
 const graticule = d3.geoGraticule();
 
-const Map = ({ data: { land, borders } }) => {
+const Map = ({ data: {land, borders}} ) => {
+  const [covidData, setCovidData] = useState(null);
+
+  useEffect(() => {
+    d3.csv(statistics).then(stats => {
+      setCovidData(stats);
+    });
+  }, []);
 
   useEffect(() => {
     renderMap();
-  }, []);
+  }, [covidData]);
+
   const renderMap = () =>  {
     const width = window.innerWidth * 0.9, height = window.innerHeight * 0.9; //1600, height = 1000;
 
@@ -28,8 +41,8 @@ const Map = ({ data: { land, borders } }) => {
     //   d3.zoom().on("zoom", redraw)
     // )
      var g = svg.append("g");
-     console.log(land.features);
-     console.log(borders);
+
+     console.log(covidData);
 
     g.selectAll("path")
         .data(land)
