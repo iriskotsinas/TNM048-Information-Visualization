@@ -12,7 +12,7 @@ pre {
 .marks .sphere {
   fill: #ececec;
 }
-.interiors {
+.borders {
   fill: none;
   stroke: #000000;
 }
