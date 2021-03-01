@@ -1,41 +1,12 @@
-//import { geoMiller, geoEquirectangular, geoNaturalEarth1, geoPath, geoGraticule } from 'd3';
 import * as d3 from "d3";
-import { useEffect, useState } from "react";
-import statistics from "../data/2020.csv";
-import * as topojson from "topojson-client";
-import Info from "./Info";
-// const projection = d3.geoEquirectangular();
-const projection = d3
-  .geoMercator()
-  .center([0, 70]) //long and lat starting position
-  .scale(150) //starting zoom position
-  .rotate([10, 0]); //where world split occurs
-const path = d3.geoPath(projection);
-const graticule = d3.geoGraticule();
 
-const Map = ({ data: { land, borders } }) => {
-  const [myData, setData] = useState(null);
-  // const [tooltipData, setTooltipData] = useState(null);
 
-  const loadData = () => {
-    d3.csv(statistics).then((stats) => {
-      let tmp = stats;
-      // console.log(stats);
-      // tmp.forEach((d,index, array) => {
-      //   console.log(array[index]["Country name"]);
-      // })
-      setData(stats);
-    });
-  };
-  useEffect(() => {
-    loadData();
-  }, []);
-  const getCountryByID = (id) => {
+export const getCountryByID = (id) => {
     return myData.find((d) => d["Country name"] === id);
   };
   const tooltipData = (d, i) => {
     let countrydata;
-    var content = "";
+    let content = "";
     content += "<p><strong> Country: </strong>: ";
     if(i.properties)
     {
@@ -81,7 +52,7 @@ const Map = ({ data: { land, borders } }) => {
     d3.select(".infoPanel").html("").append("text").html(content);
     // console.log(i.properties);
   };
-  const renderScatter = () => {
+  export const renderScatter = () => {
 
     var margin = {top: 10, right: 30, bottom: 30, left: 60},
     width = 460 - margin.left - margin.right,
@@ -132,7 +103,7 @@ const Map = ({ data: { land, borders } }) => {
         tooltipData(d, i);
       })
     }
-  const renderMap = () => {
+  export const renderMap = () => {
     console.log("rendering map...");
 
     
@@ -227,40 +198,3 @@ const Map = ({ data: { land, borders } }) => {
     //   })
     //   .attr("class", "labels");
   };
-
-  renderMap();
-  renderScatter();
-  return (
-    <div className="container">
-      <div>
-        <div className="world_map"></div>
-      </div>
-      <div>
-        <div className="infoPanel">
-          <p>
-            <strong>Country: </strong>
-          </p>
-          <p>
-            <strong>Happiness score: </strong>
-          </p>
-          <p>
-            <strong>Healthy life expectancy: </strong>
-          </p>
-          <p>
-            <strong>Freedom to make life choices: </strong>
-          </p>
-          <p>
-            <strong>Social Support: </strong>
-          </p>
-          <p>
-            <strong>GDP per capita: </strong>
-          </p>
-        </div>
-        <div className="scatter_plot"></div>
-      </div>
-      {/* <Info tooltipData={tooltipData} /> */}
-    </div>
-  );
-};
-
-export default Map;

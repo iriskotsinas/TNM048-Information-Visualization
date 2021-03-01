@@ -2,40 +2,34 @@ body {
   margin: 0;
   overflow: hidden;
   font-family: 'Poppins', sans-serif;
-  background-color: rgb(214, 214, 214);
+  background-color: rgb(221, 221, 221);
 }
 pre {
   font-size: 7em;
 }
-.marks .land {
-  fill: #137B80;
-}
-.marks .sphere {
-  fill: #ececec;
-}
-.borders {
-  fill: none;
-  stroke: #000000;
-}
-.marks .graticules {
-  fill: none;
-  stroke: #dadada;
-}
-#world-map {
+.world_map {
+  display:inline-block;
   fill: rgb(255, 0, 0);
 }
 .country {
 
   stroke: #7e7e7e;
-  /* stroke-width: 0.2; */
-}
-
-.circles {
-  fill: #3c373d;
+  stroke-width: 0.2;
 }
 
 .labels {
   font-family: sans-serif;
   font-size: 11px;
   fill: #3c373d;
+}
+.container{
+  display:flex;
+  background-color: rgb(197, 197, 197);
+
+}
+.infoPanel {
+  margin-right: 5vw;
+  background-color: aliceblue;
+  padding: 3vw;
+  width: 50vw;
 }

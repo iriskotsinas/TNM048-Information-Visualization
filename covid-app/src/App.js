@@ -3,9 +3,6 @@ import useData from './components/useData';
 import Map from './components/Map';
 import { useEffect } from 'react';
 
-const width = 960;
-const height = 500;
-
 function App() {
 
   const data = useData();
@@ -17,7 +14,7 @@ function App() {
   console.log(data);
 
   return (
-    <div width={width} height={height}>
+    <div>
       <Map data={data}/>
     </div>
     
