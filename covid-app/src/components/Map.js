@@ -7,7 +7,7 @@ import Info from "./Info";
 // const projection = d3.geoEquirectangular();
 const projection = d3
   .geoMercator()
-  .center([0, 70]) //long and lat starting position
+  .center([0, 20]) //long and lat starting position
   .scale(150) //starting zoom position
   .rotate([10, 0]); //where world split occurs
 const path = d3.geoPath(projection);
@@ -16,20 +16,22 @@ const graticule = d3.geoGraticule();
 const Map = ({ data: { land, borders } }) => {
   const [myData, setData] = useState(null);
   // const [tooltipData, setTooltipData] = useState(null);
-
+  console.log("rendering");
   const loadData = () => {
     d3.csv(statistics).then((stats) => {
-      let tmp = stats;
-      // console.log(stats);
-      // tmp.forEach((d,index, array) => {
-      //   console.log(array[index]["Country name"]);
-      // })
       setData(stats);
     });
   };
   useEffect(() => {
     loadData();
+    
   }, []);
+  useEffect(() => {
+    if(!myData) return;
+    renderMap();
+    renderScatter();
+  }, [myData]);
+
   const getCountryByID = (id) => {
     return myData.find((d) => d["Country name"] === id);
   };
@@ -84,7 +86,7 @@ const Map = ({ data: { land, borders } }) => {
   const renderScatter = () => {
 
     var margin = {top: 10, right: 30, bottom: 30, left: 60},
-    width = 460 - margin.left - margin.right,
+    width = 1000 - margin.left - margin.right,
     height = 400 - margin.top - margin.bottom;
 
     var svg = d3
@@ -145,7 +147,7 @@ const Map = ({ data: { land, borders } }) => {
       .select(".world_map")
       .append("svg")
       .attr("width", "1000")
-      .attr("height", "540px")
+      .attr("height", "400px")
       .style("margin-top", window.innerHeight * 0.05)
       .style("margin-left", window.innerWidth * 0.05)
       .call(
@@ -228,12 +230,12 @@ const Map = ({ data: { land, borders } }) => {
     //   .attr("class", "labels");
   };
 
-  renderMap();
-  renderScatter();
+
   return (
     <div className="container">
       <div>
         <div className="world_map"></div>
+        <div className="scatter_plot"></div>
       </div>
       <div>
         <div className="infoPanel">
@@ -256,7 +258,7 @@ const Map = ({ data: { land, borders } }) => {
             <strong>GDP per capita: </strong>
           </p>
         </div>
-        <div className="scatter_plot"></div>
+
       </div>
       {/* <Info tooltipData={tooltipData} /> */}
     </div>

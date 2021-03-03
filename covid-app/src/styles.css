@@ -24,12 +24,13 @@ pre {
 }
 .container{
   display:flex;
-  background-color: rgb(197, 197, 197);
+  background-color: rgb(255, 255, 255);
 
 }
 .infoPanel {
   margin-right: 5vw;
-  background-color: aliceblue;
+  background-color: rgb(145, 163, 179);
   padding: 3vw;
   width: 50vw;
+  border-radius: 25px;
 }
