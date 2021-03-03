@@ -13,7 +13,7 @@ pre {
 }
 .country {
 
-  stroke: #7e7e7e;
+  stroke: #ffffff;
   stroke-width: 0.2;
 }
 
@@ -29,7 +29,7 @@ pre {
 }
 .infoPanel {
   margin-right: 5vw;
-  background-color: rgb(145, 163, 179);
+  background-color: rgb(226, 226, 226);
   padding: 3vw;
   width: 50vw;
   border-radius: 25px;

@@ -2,10 +2,8 @@ import '../App.css';
 import React, {useEffect, useState} from 'react';
 // import * as d3 from 'd3';
 import * as d3 from 'd3';
-import topomap from '../data/world_countries.json';
 import worldmap from '../data/map.json';
-import statistics from '../data/country_vaccinations.csv';
-import test from '../data/test.json';
+
 
 import { feature, mesh } from "topojson-client";
 const jsonUrl = 'https://unpkg.com/world-atlas@2.0.2/countries-50m.json';
