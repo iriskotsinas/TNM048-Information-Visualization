@@ -9,7 +9,6 @@ pre {
 }
 .world_map {
   display:inline-block;
-  fill: rgb(255, 0, 0);
 }
 .country {
 
@@ -29,8 +28,8 @@ pre {
 }
 .infoPanel {
   margin-right: 5vw;
-  background-color: rgb(226, 226, 226);
-  padding: 3vw;
-  width: 50vw;
+  background-color: rgb(255, 255, 255);
+  padding: 3em;
+  width: 25em;
   border-radius: 25px;
 }

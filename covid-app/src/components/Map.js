@@ -23,10 +23,9 @@ const Map = ({ data: { land, borders } }) => {
   };
   useEffect(() => {
     loadData();
-    
   }, []);
   useEffect(() => {
-    if(!myData) return;
+    if (!myData) return;
     renderMap();
     renderScatter();
   }, [myData]);
@@ -38,23 +37,19 @@ const Map = ({ data: { land, borders } }) => {
     let countrydata;
     var content = "";
     content += "<p><strong> Country: </strong>: ";
-    if(i.properties)
-    {
+    if (i.properties) {
       countrydata = getCountryByID(i.properties.name);
       content += i.properties.name + "</p>";
-    }
-    else{
+    } else {
       countrydata = i;
       content += i["Country name"] + "</p>";
     }
-    
-
 
     // let date, tot_vac,tot_vac_percent;
-    let hap_score,
-      life_exp,
-      freedom,
-      gdp,
+    let hap_score = "No Data",
+      life_exp = "No Data",
+      freedom = "No Data",
+      gdp = "No Data",
       soc_sup = "No Data";
     if (countrydata != null) {
       hap_score = countrydata["Ladder score"];
@@ -83,10 +78,9 @@ const Map = ({ data: { land, borders } }) => {
     // console.log(i.properties);
   };
   const renderScatter = () => {
-
-    var margin = {top: 10, right: 30, bottom: 30, left: 60},
-    width = 1000 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    var margin = { top: 10, right: 30, bottom: 30, left: 60 },
+      width = 1000 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
 
     var svg = d3
       .select(".scatter_plot")
@@ -94,8 +88,7 @@ const Map = ({ data: { land, borders } }) => {
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
-      .attr("transform",
-      "translate(" + margin.left + "," + margin.top + ")");
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // Add X axis
     var x = d3.scaleLinear().domain([6, 12]).range([0, width]);
@@ -110,9 +103,21 @@ const Map = ({ data: { land, borders } }) => {
 
     var radiusScale = d3.scaleLinear().domain([50, 90]).range([5, 15]);
     let colorScale = d3
-    .scaleThreshold()
-    .domain([3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5])
-    .range(["#045071", "#066792", "#1881AF", "#3993BA", "#5FABCB", "#FFB570", "#FF9E45", "#FF8719", "#E76F00", "#B45600", "#833F00"]);
+      .scaleThreshold()
+      .domain([3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5])
+      .range([
+        "#045071",
+        "#066792",
+        "#1881AF",
+        "#3993BA",
+        "#5FABCB",
+        "#FFB570",
+        "#FF9E45",
+        "#FF8719",
+        "#E76F00",
+        "#B45600",
+        "#833F00",
+      ]);
 
     // Add dots
     var g = svg
@@ -123,8 +128,10 @@ const Map = ({ data: { land, borders } }) => {
       .enter()
       .append("circle")
       .attr("class", "scatter")
-      .attr("id", function(d,i){
-        return "circle-"+d["Country name"].split('.').join("").split(' ').join("");
+      .attr("id", function (d, i) {
+        return (
+          "circle-" + d["Country name"].split(".").join("").split(" ").join("")
+        );
       })
       .attr("cx", function (d) {
         return x(d["Logged GDP per capita"]);
@@ -132,57 +139,47 @@ const Map = ({ data: { land, borders } }) => {
       .attr("cy", function (d) {
         return y(d["Ladder score"]);
       })
-      .attr("r", d => {
+      .attr("r", (d) => {
         return radiusScale(d["Healthy life expectancy"]);
       })
-      .style("fill", function(d) {
-
+      .style("fill", function (d) {
         return colorScale(d["Ladder score"]);
       })
-      .style("opacity", 0.8)
-      .on("mouseover",  function (d, i) {
-        d3.select(this)
-        .attr("r", 20)
-        .style("opacity", 1.0);
-
+      // .style("opacity", 0.8)
+      .on("mouseover", function (d, i) {
+        d3.select(this).attr("r", 20);
         tooltipData(d, i);
-        
-        d3.select("#map-" + i["Country name"].split('.').join("").split(' ').join(""))
-          .attr("opacity", 1.0)
+        d3.select(
+          "#map-" + i["Country name"].split(".").join("").split(" ").join("")
+        ).attr("fill", "black");
       })
-      .on("mouseout", function (d,i) {
-        d3.select(this)
-        .attr("r",  radiusScale(i["Healthy life expectancy"]))
-        .style("opacity", 0.6);
+      .on("mouseout", function (d, i) {
         d3.selectAll(".country")
-          .transition()
-          .duration(20)
-          .attr("opacity", 0.8);
-        // d3.selectAll(".country")
-        //   .transition()
-        //   .duration(20)
-        //   .style("opacity", 1);
-        // d3.selectAll(".country")
-        //   .transition()
-        //   .duration(20)
-        //   .attr("fill", function(d){
-        // let countrydata = getCountryByID(d.properties.name);
-        // // console.log(countrydata)
-        // return countrydata ? colorScale(countrydata["Ladder score"]) : "white";
-        // })
-      });
-      
-      // svg.call(
-      //   d3.zoom().on("zoom", function (event) {
-      //     g.attr("transform", event.transform);
-      //   })
-      // )
+          // .transition()
+          // .duration(200)
+          .attr("fill", function (d) {
+            let countrydata = getCountryByID(d.properties.name);
+            // console.log(countrydata)
+            return countrydata
+              ? colorScale(countrydata["Ladder score"])
+              : "darkgrey";
+          });
 
-    }
+        d3.select(this)
+          .transition()
+          .duration(300)
+          .attr("r", radiusScale(i["Healthy life expectancy"]));
+      });
+
+    // svg.call(
+    //   d3.zoom().on("zoom", function (event) {
+    //     g.attr("transform", event.transform);
+    //   })
+    // )
+  };
   const renderMap = () => {
     console.log("rendering map...");
 
-    
     // const width = window.innerWidth * 0.9,
     //   height = window.innerHeight * 0.9; //1600, height = 1000;
     // const width = d3.select(".container").style('width').slice(0, -2)
@@ -202,7 +199,6 @@ const Map = ({ data: { land, borders } }) => {
       );
     var g = svg.append("g");
 
-
     // console.log(land);
     //const tooltip = d3.select(".world_map").append("div").attr("class", "tooltip");
     // create a tooltip
@@ -210,7 +206,19 @@ const Map = ({ data: { land, borders } }) => {
     let colorScale = d3
       .scaleThreshold()
       .domain([3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5])
-      .range(["#045071", "#066792", "#1881AF", "#3993BA", "#5FABCB", "#FFB570", "#FF9E45", "#FF8719", "#E76F00", "#B45600", "#833F00"]);
+      .range([
+        "#045071",
+        "#066792",
+        "#1881AF",
+        "#3993BA",
+        "#5FABCB",
+        "#FFB570",
+        "#FF9E45",
+        "#FF8719",
+        "#E76F00",
+        "#B45600",
+        "#833F00",
+      ]);
 
     let countries = g
       .selectAll("path")
@@ -218,73 +226,90 @@ const Map = ({ data: { land, borders } }) => {
       .enter()
       .append("path")
       .attr("class", "country")
-      .attr("id", function(d){
+      .attr("id", function (d) {
         let countrydata = getCountryByID(d.properties.name);
 
-        if(countrydata)
-          return "map-"+ countrydata["Country name"].split('.').join("").split(' ').join("");
+        if (countrydata)
+          return (
+            "map-" +
+            countrydata["Country name"].split(".").join("").split(" ").join("")
+          );
       })
       .attr("d", path)
       .attr("fill", (d) => {
         let countrydata = getCountryByID(d.properties.name);
-        return countrydata ? colorScale(countrydata["Ladder score"]) : "darkgrey";
+        return countrydata
+          ? colorScale(countrydata["Ladder score"])
+          : "darkgrey";
       })
       .on("mouseover", function (d, i) {
         // d3.selectAll(".country")
         //   .transition()
         //   .duration(20)
         //   .style("opacity", 0.5);
-        d3.select(this)
-          .transition()
-          .duration(100)
-          .attr("fill", "black");
-        var countrydata= getCountryByID(i.properties.name);
-        
-        if(countrydata){
-          console.log(countrydata, "#circle-" + countrydata["Country name"].split('.').join("").split(' ').join(""));
-          d3.select("#circle-" + countrydata["Country name"].split('.').join("").split(' ').join(""))
-          // .attr("r", 20)
-          .style("stroke", "black")
-          .style("stroke-width", 2)
-          .bringElementAsTopLayer();
+        d3.select(this).transition().duration(100).attr("fill", "black");
+        var countrydata = getCountryByID(i.properties.name);
+
+        if (countrydata) {
+          console.log(
+            countrydata,
+            "#circle-" +
+              countrydata["Country name"]
+                .split(".")
+                .join("")
+                .split(" ")
+                .join("")
+          );
+          d3.select(
+            "#circle-" +
+              countrydata["Country name"]
+                .split(".")
+                .join("")
+                .split(" ")
+                .join("")
+          )
+            // .attr("r", 20)
+            .style("stroke", "black")
+            .style("stroke-width", 2)
+            .bringElementAsTopLayer();
         }
         tooltipData(d, i);
       })
-      .on("mouseout", function (d,i) {
-        d3.selectAll(".scatter")
-          .style("stroke", "transparent");
-      
+      .on("mouseout", function (d, i) {
+        d3.selectAll(".scatter").style("stroke", "transparent");
+
         d3.selectAll(".country")
           .transition()
           .duration(20)
-          .attr("fill", function(d){
+          .attr("fill", function (d) {
             let countrydata = getCountryByID(d.properties.name);
-            return countrydata ? colorScale(countrydata["Ladder score"]) : "darkgrey";
+            return countrydata
+              ? colorScale(countrydata["Ladder score"])
+              : "darkgrey";
           });
       });
-      
-      d3.selection.prototype.bringElementAsTopLayer = function() {
-        return this.each(function(){
+
+    d3.selection.prototype.bringElementAsTopLayer = function () {
+      return this.each(function () {
         this.parentNode.appendChild(this);
-        });
-      };
-      d3.selection.prototype.pushElementAsBackLayer = function() { 
-      return this.each(function() { 
-          var firstChild = this.parentNode.firstChild; 
-          if (firstChild) { 
-              this.parentNode.insertBefore(this, firstChild); 
-          } 
-      }); 
+      });
+    };
+    d3.selection.prototype.pushElementAsBackLayer = function () {
+      return this.each(function () {
+        var firstChild = this.parentNode.firstChild;
+        if (firstChild) {
+          this.parentNode.insertBefore(this, firstChild);
+        }
+      });
     };
     // g.selectAll("text")
     //   .data(land)
     //   .enter()
     //   .append("text")
     //   .text(function (d) {
-    //     //console.log(d);
     //     let countrydata = getCountryByID(d.properties.iso_a3);
 
-    //     return countrydata ? countrydata.total_vaccinations : "";
+    //     return d.properties.iso_a3;
     //   })
     //   .attr("x", function (d) {
     //     return path.centroid(d)[0];
@@ -292,40 +317,71 @@ const Map = ({ data: { land, borders } }) => {
     //   .attr("y", function (d) {
     //     return path.centroid(d)[1];
     //   })
-    //   .attr("class", "labels");
-    const ticks = d3.scaleLinear()
-    .domain([2.5, 8])
-    .range([0, 280]);
+    //   .attr("class", "labels")
+    //   .style("font-size", 5);
 
-    const xAxis = d3.axisBottom(ticks)
-    .tickSize(10)
-    .tickValues(colorScale.domain());
+    const ticks = d3.scaleLinear().domain([2.5, 8]).range([0, 280]);
 
-    const legend = svg.append("g")
-    .attr("class", "legend")
-    .attr("transform", "translate(55, 370)")
-    .call(xAxis);
+    const xAxis = d3
+      .axisBottom(ticks)
+      .tickSize(10)
+      .tickValues(colorScale.domain());
+
+    const legend = svg
+      .append("g")
+      .attr("class", "legend")
+      .attr("transform", "translate(70, 370)")
+      .call(xAxis);
 
     // legend.select(".domain")
     //     .remove();
 
-    const legendColors = function(legendColor) {
+    const legendColors = function (legendColor) {
       let d = colorScale.invertExtent(legendColor);
       if (!d[0]) d[0] = ticks.domain()[0];
       if (!d[1]) d[1] = ticks.domain()[1];
       return d;
     };
-    
-    legend.selectAll("rect")
-      .data(colorScale.range().map(legendColor => legendColors(legendColor)))
-      .enter().insert("rect", ".legend-tick")
+
+    legend
+      .selectAll("rect")
+      .data(colorScale.range().map((legendColor) => legendColors(legendColor)))
+      .enter()
+      .insert("rect", ".legend-tick")
       .attr("height", 10)
-      .attr("x", function(d) { return ticks(d[0]); })
-      .attr("width", function(d) { return ticks(d[1]) - ticks(d[0]); })
-      .attr("fill", function(d) { return colorScale(d[0]); });
+      .attr("x", function (d) {
+        return ticks(d[0]);
+      })
+      .attr("width", function (d) {
+        return ticks(d[1]) - ticks(d[0]);
+      })
+      .attr("fill", function (d) {
+        return colorScale(d[0]);
+      });
 
+    const noDataLegend = svg
+      .append("g")
+      .attr("class", "noDataLegend")
+      .attr("transform", "translate(70, 350)")
+      .insert("rect")
+      .attr("height", 10)
+      .attr("width", 25)
+      .attr("fill", "darkgrey");
+
+    svg
+      .append("text")
+      .attr("x", 20)
+      .attr("y", 360)
+      .text("No Data")
+      .style("font-size", 12);
+
+    svg
+      .append("text")
+      .attr("x", 20)
+      .attr("y", 380)
+      .text("Legend")
+      .style("font-size", 12);
   };
-
 
   return (
     <div className="container">
@@ -354,7 +410,6 @@ const Map = ({ data: { land, borders } }) => {
             <strong>GDP per capita: </strong>
           </p>
         </div>
-
       </div>
       {/* <Info tooltipData={tooltipData} /> */}
     </div>
