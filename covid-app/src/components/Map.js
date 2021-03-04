@@ -2,6 +2,8 @@
 import * as d3 from "d3";
 import { useEffect, useState } from "react";
 import statistics from "../data/2020.csv";
+import Select from "react-select";
+import "react-dropdown/style.css";
 
 // const projection = d3.geoEquirectangular();
 const projection = d3
@@ -11,10 +13,108 @@ const projection = d3
   .rotate([10, 0]); //where world split occurs
 const path = d3.geoPath(projection);
 const graticule = d3.geoGraticule();
+const optionArray = [
+  {
+    value: 1,
+    label: "Happiness score",
+    data: "Ladder score",
+    domain: [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5],
+    range: [
+      "#045071",
+      "#066792",
+      "#1881AF",
+      "#3993BA",
+      "#5FABCB",
+      "#FFB570",
+      "#FF9E45",
+      "#FF8719",
+      "#E76F00",
+      "#B45600",
+      "#833F00",
+    ],
+  },
+  {
+    value: 2,
+    label: "Healthy life expectancy",
+    data: "Healthy life expectancy",
+    domain: [44, 48, 52, 56, 60, 64, 68, 72, 76, 80],
+    range: [
+      "#045071",
+      "#066792",
+      "#1881AF",
+      "#3993BA",
+      "#5FABCB",
+      "#FFB570",
+      "#FF9E45",
+      "#FF8719",
+      "#E76F00",
+      "#B45600",
+      "#833F00",
+    ],
+  },
+  {
+    value: 3,
+    label: "Freedom to make life choices",
+    data: "Freedom to make life choices",
+    domain: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    range: [
+      "#045071",
+      "#066792",
+      "#1881AF",
+      "#3993BA",
+      "#5FABCB",
+      "#FFB570",
+      "#FF9E45",
+      "#FF8719",
+      "#E76F00",
+      "#B45600",
+      "#833F00",
+    ],
+  },
+  {
+    value: 4,
+    label: "GDP per capita",
+    data: "Logged GDP per capita",
+    domain: [6.0, 6.6, 7.2, 7.8, 8.4, 9.0, 9.6, 10.2, 10.8, 11.4, 12.0],
+    range: [
+      "#045071",
+      "#066792",
+      "#1881AF",
+      "#3993BA",
+      "#5FABCB",
+      "#FFB570",
+      "#FF9E45",
+      "#FF8719",
+      "#E76F00",
+      "#B45600",
+      "#833F00",
+    ],
+  },
+  {
+    value: 5,
+    label: "Social Support",
+    data: "Social support",
+    domain: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    range: [
+      "#045071",
+      "#066792",
+      "#1881AF",
+      "#3993BA",
+      "#5FABCB",
+      "#FFB570",
+      "#FF9E45",
+      "#FF8719",
+      "#E76F00",
+      "#B45600",
+      "#833F00",
+    ],
+  },
+];
 
 const Map = ({ data: { land, borders } }) => {
   const [myData, setData] = useState(null);
-  // const [tooltipData, setTooltipData] = useState(null);
+  const [options, setOptions] = useState(optionArray[0]);
+
   console.log("rendering");
   const loadData = () => {
     d3.csv(statistics).then((stats) => {
@@ -28,7 +128,16 @@ const Map = ({ data: { land, borders } }) => {
     if (!myData) return;
     renderMap();
     renderScatter();
+    console.log("done");
   }, [myData]);
+
+  useEffect(() => {
+    if (!myData) return;
+    d3.selectAll("svg").remove();
+    renderMap();
+    renderScatter();
+    console.log("done");
+  }, [options]);
 
   const getCountryByID = (id) => {
     return myData.find((d) => d["Country name"] === id);
@@ -69,18 +178,13 @@ const Map = ({ data: { land, borders } }) => {
     content += gdp + "</p>";
     content += "<p><strong> Social Support: </strong>: ";
     content += soc_sup + "</p>";
-    // content += "<p><strong> Total Vaccinations: </strong>: "
-    // content += tot_vac + "</p>";
-    // content += "<p><strong> Total Vaccinations (%): </strong>: "
-    // content += tot_vac_percent + "</p>";
 
     d3.select(".infoPanel").html("").append("text").html(content);
-    // console.log(i.properties);
   };
   const renderScatter = () => {
-    var margin = { top: 10, right: 30, bottom: 30, left: 60 },
+    var margin = { top: 10, right: 30, bottom: 80, left: 80 },
       width = 1000 - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom;
+      height = 500 - margin.top - margin.bottom;
 
     var svg = d3
       .select(".scatter_plot")
@@ -104,20 +208,8 @@ const Map = ({ data: { land, borders } }) => {
     var radiusScale = d3.scaleLinear().domain([50, 90]).range([5, 15]);
     let colorScale = d3
       .scaleThreshold()
-      .domain([3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5])
-      .range([
-        "#045071",
-        "#066792",
-        "#1881AF",
-        "#3993BA",
-        "#5FABCB",
-        "#FFB570",
-        "#FF9E45",
-        "#FF8719",
-        "#E76F00",
-        "#B45600",
-        "#833F00",
-      ]);
+      .domain(options.domain)
+      .range(options.range);
 
     // Add dots
     var g = svg
@@ -137,13 +229,13 @@ const Map = ({ data: { land, borders } }) => {
         return x(d["Logged GDP per capita"]);
       })
       .attr("cy", function (d) {
-        return y(d["Ladder score"]);
+        return y(d["Ladder score"]); //change?
       })
       .attr("r", (d) => {
         return radiusScale(d["Healthy life expectancy"]);
       })
       .style("fill", function (d) {
-        return colorScale(d["Ladder score"]);
+        return colorScale(d[options.data]);
       })
       // .style("opacity", 0.8)
       .on("mouseover", function (d, i) {
@@ -159,9 +251,9 @@ const Map = ({ data: { land, borders } }) => {
           // .duration(200)
           .attr("fill", function (d) {
             let countrydata = getCountryByID(d.properties.name);
-            // console.log(countrydata)
+
             return countrydata
-              ? colorScale(countrydata["Ladder score"])
+              ? colorScale(countrydata[options.data])
               : "darkgrey";
           });
 
@@ -171,19 +263,28 @@ const Map = ({ data: { land, borders } }) => {
           .attr("r", radiusScale(i["Healthy life expectancy"]));
       });
 
-    // svg.call(
-    //   d3.zoom().on("zoom", function (event) {
-    //     g.attr("transform", event.transform);
-    //   })
-    // )
+    // text label for the x axis
+    svg
+      .append("text")
+      .attr(
+        "transform",
+        "translate(" + width / 2 + " ," + (height + margin.top + 20) + ")"
+      )
+      .style("text-anchor", "middle")
+      .text("GDP per capita");
+
+    // text label for the y axis
+    svg
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 20 - margin.left)
+      .attr("x", 0 - height / 2)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Happiness score");
   };
   const renderMap = () => {
     console.log("rendering map...");
-
-    // const width = window.innerWidth * 0.9,
-    //   height = window.innerHeight * 0.9; //1600, height = 1000;
-    // const width = d3.select(".container").style('width').slice(0, -2)
-    // const height = d3.select(".container").style('height').slice(0, -2)
 
     const svg = d3
       .select(".world_map")
@@ -199,26 +300,10 @@ const Map = ({ data: { land, borders } }) => {
       );
     var g = svg.append("g");
 
-    // console.log(land);
-    //const tooltip = d3.select(".world_map").append("div").attr("class", "tooltip");
-    // create a tooltip
-
     let colorScale = d3
       .scaleThreshold()
-      .domain([3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5])
-      .range([
-        "#045071",
-        "#066792",
-        "#1881AF",
-        "#3993BA",
-        "#5FABCB",
-        "#FFB570",
-        "#FF9E45",
-        "#FF8719",
-        "#E76F00",
-        "#B45600",
-        "#833F00",
-      ]);
+      .domain(options.domain)
+      .range(options.range);
 
     let countries = g
       .selectAll("path")
@@ -238,9 +323,7 @@ const Map = ({ data: { land, borders } }) => {
       .attr("d", path)
       .attr("fill", (d) => {
         let countrydata = getCountryByID(d.properties.name);
-        return countrydata
-          ? colorScale(countrydata["Ladder score"])
-          : "darkgrey";
+        return countrydata ? colorScale(countrydata[options.data]) : "darkgrey";
       })
       .on("mouseover", function (d, i) {
         // d3.selectAll(".country")
@@ -251,15 +334,6 @@ const Map = ({ data: { land, borders } }) => {
         var countrydata = getCountryByID(i.properties.name);
 
         if (countrydata) {
-          console.log(
-            countrydata,
-            "#circle-" +
-              countrydata["Country name"]
-                .split(".")
-                .join("")
-                .split(" ")
-                .join("")
-          );
           d3.select(
             "#circle-" +
               countrydata["Country name"]
@@ -284,7 +358,7 @@ const Map = ({ data: { land, borders } }) => {
           .attr("fill", function (d) {
             let countrydata = getCountryByID(d.properties.name);
             return countrydata
-              ? colorScale(countrydata["Ladder score"])
+              ? colorScale(countrydata[options.data])
               : "darkgrey";
           });
       });
@@ -319,8 +393,11 @@ const Map = ({ data: { land, borders } }) => {
     //   })
     //   .attr("class", "labels")
     //   .style("font-size", 5);
-
-    const ticks = d3.scaleLinear().domain([2.5, 8]).range([0, 280]);
+    console.log([options.domain[0], options.domain[9]]);
+    const ticks = d3
+      .scaleLinear()
+      .domain([options.domain[0], options.domain[9]])
+      .range([0, 280]);
 
     const xAxis = d3
       .axisBottom(ticks)
@@ -382,6 +459,9 @@ const Map = ({ data: { land, borders } }) => {
       .text("Legend")
       .style("font-size", 12);
   };
+  const handleChange = (op) => {
+    setOptions(op);
+  };
 
   return (
     <div className="container">
@@ -410,6 +490,12 @@ const Map = ({ data: { land, borders } }) => {
             <strong>GDP per capita: </strong>
           </p>
         </div>
+        <Select
+          options={optionArray}
+          value={options}
+          onChange={handleChange}
+          placeholder="Select an option"
+        />
       </div>
       {/* <Info tooltipData={tooltipData} /> */}
     </div>
