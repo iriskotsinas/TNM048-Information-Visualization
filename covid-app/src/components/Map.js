@@ -1,9 +1,24 @@
 //import { geoMiller, geoEquirectangular, geoNaturalEarth1, geoPath, geoGraticule } from 'd3';
 import * as d3 from "d3";
 import { useEffect, useState } from "react";
-import statistics from "../data/2020.csv";
+import s2015 from "../data/2015.csv";
+import s2016 from "../data/2016.csv";
+import s2017 from "../data/2017.csv";
+import s2018 from "../data/2018.csv";
+import s2019 from "../data/2019.csv";
+import s2020 from "../data/2020.csv";
 import Select from "react-select";
+import { Slider, RangeSlider } from 'rsuite';
 import "react-dropdown/style.css";
+import 'rsuite/dist/styles/rsuite-default.css';
+
+const collection = {
+  "2015" : s2015,
+  "2016" : s2016,
+  "2017" : s2017,
+  "2018" : s2018,
+  "2019" : s2019
+}
 
 // const projection = d3.geoEquirectangular();
 const projection = d3
@@ -37,7 +52,7 @@ const optionArray = [
     value: 2,
     label: "Healthy life expectancy",
     data: "Healthy life expectancy",
-    domain: [44, 48, 52, 56, 60, 64, 68, 72, 76, 80],
+    domain: [0, 0.12, 0.24, 0.36, 0.48, 0.6, 0.72, 0.84, 0.96, 1.08, 1.2],
     range: [
       "#045071",
       "#066792",
@@ -75,7 +90,7 @@ const optionArray = [
     value: 4,
     label: "GDP per capita",
     data: "Logged GDP per capita",
-    domain: [6.0, 6.6, 7.2, 7.8, 8.4, 9.0, 9.6, 10.2, 10.8, 11.4, 12.0],
+    domain: [0, 0.22, 0.44, 0.66, 0.88, 1.1, 1.32, 1.54, 1.76, 1.98, 2.2],
     range: [
       "#045071",
       "#066792",
@@ -89,55 +104,42 @@ const optionArray = [
       "#B45600",
       "#833F00",
     ],
-  },
-  {
-    value: 5,
-    label: "Social Support",
-    data: "Social support",
-    domain: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    range: [
-      "#045071",
-      "#066792",
-      "#1881AF",
-      "#3993BA",
-      "#5FABCB",
-      "#FFB570",
-      "#FF9E45",
-      "#FF8719",
-      "#E76F00",
-      "#B45600",
-      "#833F00",
-    ],
-  },
+  }
 ];
-
+//`s${year}`
 const Map = ({ data: { land, borders } }) => {
   const [myData, setData] = useState(null);
   const [options, setOptions] = useState(optionArray[0]);
-
-  console.log("rendering");
+  const [year, setYear] = useState(2015);
+  console.log(collection);
   const loadData = () => {
-    d3.csv(statistics).then((stats) => {
+    d3.csv(collection[year]).then((stats) => {
       setData(stats);
     });
+    
   };
   useEffect(() => {
     loadData();
-  }, []);
+  }, [year]);
   useEffect(() => {
+    
     if (!myData) return;
+    clearContent();
     renderMap();
     renderScatter();
-    console.log("done");
   }, [myData]);
 
   useEffect(() => {
     if (!myData) return;
-    d3.selectAll("svg").remove();
+    clearContent();
     renderMap();
     renderScatter();
-    console.log("done");
   }, [options]);
+
+  const clearContent = () => {
+    d3.selectAll("svg").remove();
+  }
+
 
   const getCountryByID = (id) => {
     return myData.find((d) => d["Country name"] === id);
@@ -165,22 +167,24 @@ const Map = ({ data: { land, borders } }) => {
       life_exp = countrydata["Healthy life expectancy"];
       freedom = countrydata["Freedom to make life choices"];
       gdp = countrydata["Logged GDP per capita"];
-      soc_sup = countrydata["Social support"];
     }
 
     content += "<p><strong> Happiness score: </strong>: ";
-    content += hap_score + "</p>";
+    content += round(hap_score) + "</p>";
     content += "<p><strong> Healthy life expectancy: </strong>: ";
-    content += life_exp + "</p>";
+    content += round(life_exp) + "</p>";
     content += "<p><strong> Freedom to make life choices: </strong>: ";
-    content += freedom + "</p>";
+    content += round(freedom) + "</p>";
     content += "<p><strong> GDP per capita: </strong>: ";
-    content += gdp + "</p>";
-    content += "<p><strong> Social Support: </strong>: ";
-    content += soc_sup + "</p>";
-
+    content += round(gdp) + "</p>";
     d3.select(".infoPanel").html("").append("text").html(content);
   };
+  const trimString = (str) => {
+    return str.split(".").join("").split(" ").join("");
+  }
+  const round = (num) => {
+    return Math.round(num * 100) / 100;
+  }
   const renderScatter = () => {
     var margin = { top: 10, right: 30, bottom: 80, left: 80 },
       width = 1000 - margin.left - margin.right,
@@ -195,7 +199,7 @@ const Map = ({ data: { land, borders } }) => {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // Add X axis
-    var x = d3.scaleLinear().domain([6, 12]).range([0, width]);
+    var x = d3.scaleLinear().domain([0, 2.2]).range([0, width]);
     svg
       .append("g")
       .attr("transform", "translate(0," + height + ")")
@@ -205,7 +209,7 @@ const Map = ({ data: { land, borders } }) => {
     var y = d3.scaleLinear().domain([2, 8]).range([height, 0]);
     svg.append("g").call(d3.axisLeft(y));
 
-    var radiusScale = d3.scaleLinear().domain([50, 90]).range([5, 15]);
+    var radiusScale = d3.scaleLinear().domain([0, 1.2]).range([5, 15]);
     let colorScale = d3
       .scaleThreshold()
       .domain(options.domain)
@@ -222,7 +226,7 @@ const Map = ({ data: { land, borders } }) => {
       .attr("class", "scatter")
       .attr("id", function (d, i) {
         return (
-          "circle-" + d["Country name"].split(".").join("").split(" ").join("")
+          "circle-" + trimString(d["Country name"])
         );
       })
       .attr("cx", function (d) {
@@ -242,7 +246,7 @@ const Map = ({ data: { land, borders } }) => {
         d3.select(this).attr("r", 20);
         tooltipData(d, i);
         d3.select(
-          "#map-" + i["Country name"].split(".").join("").split(" ").join("")
+          "#map-" + trimString(i["Country name"])
         ).attr("fill", "black");
       })
       .on("mouseout", function (d, i) {
@@ -317,7 +321,7 @@ const Map = ({ data: { land, borders } }) => {
         if (countrydata)
           return (
             "map-" +
-            countrydata["Country name"].split(".").join("").split(" ").join("")
+            trimString(countrydata["Country name"])
           );
       })
       .attr("d", path)
@@ -484,9 +488,6 @@ const Map = ({ data: { land, borders } }) => {
             <strong>Freedom to make life choices: </strong>
           </p>
           <p>
-            <strong>Social Support: </strong>
-          </p>
-          <p>
             <strong>GDP per capita: </strong>
           </p>
         </div>
@@ -496,6 +497,24 @@ const Map = ({ data: { land, borders } }) => {
           onChange={handleChange}
           placeholder="Select an option"
         />
+
+        <div className="spacer"><Slider
+          className="slider"
+          graduated={true}
+          min={2015}
+          max={2019}
+          defaultValue={2015}
+          renderMark={mark => {
+            if ([2015, 2016, 2017, 2018, 2019].includes(mark)) {
+              return <span>{mark}</span>;
+            }
+            return null;
+          }}
+          value={year}
+          onChange={(d) => {setYear(d)}}
+        /></div>
+
+
       </div>
       {/* <Info tooltipData={tooltipData} /> */}
     </div>

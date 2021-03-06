@@ -32,4 +32,9 @@ pre {
   padding: 3em;
   width: 25em;
   border-radius: 25px;
+  color: rgb(49, 22, 0);
+}
+.spacer{
+  margin: 2em;
+  padding: 1em;
 }
