@@ -1,4 +1,3 @@
-//import { geoMiller, geoEquirectangular, geoNaturalEarth1, geoPath, geoGraticule } from 'd3';
 import * as d3 from "d3";
 import { useEffect, useState } from "react";
 import s2015 from "../data/2015.csv";
@@ -6,11 +5,11 @@ import s2016 from "../data/2016.csv";
 import s2017 from "../data/2017.csv";
 import s2018 from "../data/2018.csv";
 import s2019 from "../data/2019.csv";
-import s2020 from "../data/2020.csv";
 import Select from "react-select";
-import { Slider, RangeSlider } from 'rsuite';
+import { Slider } from 'rsuite';
 import "react-dropdown/style.css";
 import 'rsuite/dist/styles/rsuite-default.css';
+import { optionArray, sizeLegend, trimString, round } from './helper';
 
 const collection = {
   "2015" : s2015,
@@ -20,109 +19,30 @@ const collection = {
   "2019" : s2019
 }
 
-// const projection = d3.geoEquirectangular();
 const projection = d3
   .geoMercator()
-  .center([0, 20]) //long and lat starting position
-  .scale(150) //starting zoom position
-  .rotate([10, 0]); //where world split occurs
+  .center([0, 20]) // long and lat starting position
+  .scale(150) // starting zoom position
+  .rotate([10, 0]); // where world split occurs
+
 const path = d3.geoPath(projection);
-const graticule = d3.geoGraticule();
-const optionArray = [
-  {
-    value: 1,
-    label: "Happiness score",
-    data: "Ladder score",
-    domain: [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5],
-    range: [
-      "#045071",
-      "#066792",
-      "#1881AF",
-      "#3993BA",
-      "#5FABCB",
-      "#FFB570",
-      "#FF9E45",
-      "#FF8719",
-      "#E76F00",
-      "#B45600",
-      "#833F00",
-    ],
-  },
-  {
-    value: 2,
-    label: "Healthy life expectancy",
-    data: "Healthy life expectancy",
-    domain: [0, 0.12, 0.24, 0.36, 0.48, 0.6, 0.72, 0.84, 0.96, 1.08, 1.2],
-    range: [
-      "#045071",
-      "#066792",
-      "#1881AF",
-      "#3993BA",
-      "#5FABCB",
-      "#FFB570",
-      "#FF9E45",
-      "#FF8719",
-      "#E76F00",
-      "#B45600",
-      "#833F00",
-    ],
-  },
-  {
-    value: 3,
-    label: "Freedom to make life choices",
-    data: "Freedom to make life choices",
-    domain: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    range: [
-      "#045071",
-      "#066792",
-      "#1881AF",
-      "#3993BA",
-      "#5FABCB",
-      "#FFB570",
-      "#FF9E45",
-      "#FF8719",
-      "#E76F00",
-      "#B45600",
-      "#833F00",
-    ],
-  },
-  {
-    value: 4,
-    label: "GDP per capita",
-    data: "Logged GDP per capita",
-    domain: [0, 0.22, 0.44, 0.66, 0.88, 1.1, 1.32, 1.54, 1.76, 1.98, 2.2],
-    range: [
-      "#045071",
-      "#066792",
-      "#1881AF",
-      "#3993BA",
-      "#5FABCB",
-      "#FFB570",
-      "#FF9E45",
-      "#FF8719",
-      "#E76F00",
-      "#B45600",
-      "#833F00",
-    ],
-  }
-];
-//`s${year}`
-const Map = ({ data: { land, borders } }) => {
+
+const Map = ({ data: { land } }) => {
   const [myData, setData] = useState(null);
   const [options, setOptions] = useState(optionArray[0]);
   const [year, setYear] = useState(2015);
-  console.log(collection);
+
   const loadData = () => {
     d3.csv(collection[year]).then((stats) => {
       setData(stats);
     });
-    
   };
+
   useEffect(() => {
     loadData();
   }, [year]);
+
   useEffect(() => {
-    
     if (!myData) return;
     clearContent();
     renderMap();
@@ -140,10 +60,10 @@ const Map = ({ data: { land, borders } }) => {
     d3.selectAll("svg").remove();
   }
 
-
   const getCountryByID = (id) => {
     return myData.find((d) => d["Country name"] === id);
   };
+
   const tooltipData = (d, i) => {
     let countrydata;
     var content = "";
@@ -156,12 +76,11 @@ const Map = ({ data: { land, borders } }) => {
       content += i["Country name"] + "</p>";
     }
 
-    // let date, tot_vac,tot_vac_percent;
     let hap_score = "No Data",
-      life_exp = "No Data",
-      freedom = "No Data",
-      gdp = "No Data",
-      soc_sup = "No Data";
+        life_exp = "No Data",
+        freedom = "No Data",
+        gdp = "No Data";
+
     if (countrydata != null) {
       hap_score = countrydata["Ladder score"];
       life_exp = countrydata["Healthy life expectancy"];
@@ -179,12 +98,7 @@ const Map = ({ data: { land, borders } }) => {
     content += round(gdp) + "</p>";
     d3.select(".infoPanel").html("").append("text").html(content);
   };
-  const trimString = (str) => {
-    return str.split(".").join("").split(" ").join("");
-  }
-  const round = (num) => {
-    return Math.round(num * 100) / 100;
-  }
+
   const renderScatter = () => {
     var margin = { top: 10, right: 30, bottom: 80, left: 80 },
       width = 1000 - margin.left - margin.right,
@@ -216,7 +130,7 @@ const Map = ({ data: { land, borders } }) => {
       .range(options.range);
 
     // Add dots
-    var g = svg
+    svg
       .append("g")
       .selectAll("dot")
 
@@ -241,7 +155,7 @@ const Map = ({ data: { land, borders } }) => {
       .style("fill", function (d) {
         return colorScale(d[options.data]);
       })
-      // .style("opacity", 0.8)
+
       .on("mouseover", function (d, i) {
         d3.select(this).attr("r", 20);
         tooltipData(d, i);
@@ -249,10 +163,9 @@ const Map = ({ data: { land, borders } }) => {
           "#map-" + trimString(i["Country name"])
         ).attr("fill", "black");
       })
+
       .on("mouseout", function (d, i) {
         d3.selectAll(".country")
-          // .transition()
-          // .duration(200)
           .attr("fill", function (d) {
             let countrydata = getCountryByID(d.properties.name);
 
@@ -286,7 +199,26 @@ const Map = ({ data: { land, borders } }) => {
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .text("Happiness score");
-  };
+    
+    const sizeMax = 12;
+    const sizeScale = d3.scaleSqrt()
+      .range([0, sizeMax])
+      .domain([0, 2.0]);
+
+    sizeLegend(svg, {
+      sizeScale: sizeScale,
+      positionX: 750,
+      positionY: 200,
+      ticks: 3,
+      tickFill: "grey",
+      tickSpacing: 35,
+      tickPadding: 16,
+      label: "Healthy life expectancy",
+      labelX: -20,
+      labelY: -30
+    });
+  };  
+
   const renderMap = () => {
     console.log("rendering map...");
 
@@ -302,6 +234,7 @@ const Map = ({ data: { land, borders } }) => {
           g.attr("transform", event.transform);
         })
       );
+
     var g = svg.append("g");
 
     let colorScale = d3
@@ -309,8 +242,7 @@ const Map = ({ data: { land, borders } }) => {
       .domain(options.domain)
       .range(options.range);
 
-    let countries = g
-      .selectAll("path")
+    g.selectAll("path")
       .data(land)
       .enter()
       .append("path")
@@ -329,11 +261,8 @@ const Map = ({ data: { land, borders } }) => {
         let countrydata = getCountryByID(d.properties.name);
         return countrydata ? colorScale(countrydata[options.data]) : "darkgrey";
       })
+
       .on("mouseover", function (d, i) {
-        // d3.selectAll(".country")
-        //   .transition()
-        //   .duration(20)
-        //   .style("opacity", 0.5);
         d3.select(this).transition().duration(100).attr("fill", "black");
         var countrydata = getCountryByID(i.properties.name);
 
@@ -346,13 +275,13 @@ const Map = ({ data: { land, borders } }) => {
                 .split(" ")
                 .join("")
           )
-            // .attr("r", 20)
             .style("stroke", "black")
             .style("stroke-width", 2)
             .bringElementAsTopLayer();
         }
         tooltipData(d, i);
       })
+
       .on("mouseout", function (d, i) {
         d3.selectAll(".scatter").style("stroke", "transparent");
 
@@ -372,6 +301,7 @@ const Map = ({ data: { land, borders } }) => {
         this.parentNode.appendChild(this);
       });
     };
+
     d3.selection.prototype.pushElementAsBackLayer = function () {
       return this.each(function () {
         var firstChild = this.parentNode.firstChild;
@@ -380,24 +310,7 @@ const Map = ({ data: { land, borders } }) => {
         }
       });
     };
-    // g.selectAll("text")
-    //   .data(land)
-    //   .enter()
-    //   .append("text")
-    //   .text(function (d) {
-    //     let countrydata = getCountryByID(d.properties.iso_a3);
 
-    //     return d.properties.iso_a3;
-    //   })
-    //   .attr("x", function (d) {
-    //     return path.centroid(d)[0];
-    //   })
-    //   .attr("y", function (d) {
-    //     return path.centroid(d)[1];
-    //   })
-    //   .attr("class", "labels")
-    //   .style("font-size", 5);
-    console.log([options.domain[0], options.domain[9]]);
     const ticks = d3
       .scaleLinear()
       .domain([options.domain[0], options.domain[9]])
@@ -413,9 +326,6 @@ const Map = ({ data: { land, borders } }) => {
       .attr("class", "legend")
       .attr("transform", "translate(70, 370)")
       .call(xAxis);
-
-    // legend.select(".domain")
-    //     .remove();
 
     const legendColors = function (legendColor) {
       let d = colorScale.invertExtent(legendColor);
@@ -440,7 +350,7 @@ const Map = ({ data: { land, borders } }) => {
         return colorScale(d[0]);
       });
 
-    const noDataLegend = svg
+    svg
       .append("g")
       .attr("class", "noDataLegend")
       .attr("transform", "translate(70, 350)")
@@ -463,6 +373,7 @@ const Map = ({ data: { land, borders } }) => {
       .text("Legend")
       .style("font-size", 12);
   };
+
   const handleChange = (op) => {
     setOptions(op);
   };
@@ -497,26 +408,24 @@ const Map = ({ data: { land, borders } }) => {
           onChange={handleChange}
           placeholder="Select an option"
         />
-
-        <div className="spacer"><Slider
-          className="slider"
-          graduated={true}
-          min={2015}
-          max={2019}
-          defaultValue={2015}
-          renderMark={mark => {
-            if ([2015, 2016, 2017, 2018, 2019].includes(mark)) {
-              return <span>{mark}</span>;
-            }
-            return null;
-          }}
-          value={year}
-          onChange={(d) => {setYear(d)}}
-        /></div>
-
-
+        <div className="spacer">
+          <Slider
+            className="slider"
+            graduated={true}
+            min={2015}
+            max={2019}
+            defaultValue={2015}
+            renderMark={mark => {
+              if ([2015, 2016, 2017, 2018, 2019].includes(mark)) {
+                return <span>{mark}</span>;
+              }
+              return null;
+            }}
+            value={year}
+            onChange={(d) => {setYear(d)}}
+          />
+        </div>
       </div>
-      {/* <Info tooltipData={tooltipData} /> */}
     </div>
   );
 };

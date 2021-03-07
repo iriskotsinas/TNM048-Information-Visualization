@@ -1,17 +1,13 @@
 import '../App.css';
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 // import * as d3 from 'd3';
-import * as d3 from 'd3';
 import worldmap from '../data/map.json';
-
-
-import { feature, mesh } from "topojson-client";
-const jsonUrl = 'https://unpkg.com/world-atlas@2.0.2/countries-50m.json';
+// import { feature, mesh } from "topojson-client";
+// const jsonUrl = 'https://unpkg.com/world-atlas@2.0.2/countries-50m.json';
 // const jsonUrl = 'https://gist.githubusercontent.com/d3noob/5193723/raw/world-110m2.json';
 
 const useData = () => {
   const [data, setData] = useState(null);
-  // const [covidData, setCovidData] = useState(null);
 
   useEffect(() => {
       //const { countries, land } = topomap.features;
@@ -22,10 +18,6 @@ const useData = () => {
       //setData(topology);
     // json(topomap).then((topology) => {
     //   setData(topology);
-    // });
-
-    // d3.csv(statistics).then(stats => {
-    //   setCovidData(stats);
     // });
 
     return () => undefined;

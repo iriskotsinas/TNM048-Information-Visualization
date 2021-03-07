@@ -1,200 +1,147 @@
-import * as d3 from "d3";
+export const optionArray = [
+  {
+    value: 1,
+    label: "Happiness score",
+    data: "Ladder score",
+    domain: [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5],
+    range: [
+      "#045071",
+      "#066792",
+      "#1881AF",
+      "#3993BA",
+      "#5FABCB",
+      "#FFB570",
+      "#FF9E45",
+      "#FF8719",
+      "#E76F00",
+      "#B45600",
+      "#833F00",
+    ],
+  },
+  {
+    value: 2,
+    label: "Healthy life expectancy",
+    data: "Healthy life expectancy",
+    domain: [0, 0.12, 0.24, 0.36, 0.48, 0.6, 0.72, 0.84, 0.96, 1.08, 1.2],
+    range: [
+      "#045071",
+      "#066792",
+      "#1881AF",
+      "#3993BA",
+      "#5FABCB",
+      "#FFB570",
+      "#FF9E45",
+      "#FF8719",
+      "#E76F00",
+      "#B45600",
+      "#833F00",
+    ],
+  },
+  {
+    value: 3,
+    label: "Freedom to make life choices",
+    data: "Freedom to make life choices",
+    domain: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    range: [
+      "#045071",
+      "#066792",
+      "#1881AF",
+      "#3993BA",
+      "#5FABCB",
+      "#FFB570",
+      "#FF9E45",
+      "#FF8719",
+      "#E76F00",
+      "#B45600",
+      "#833F00",
+    ],
+  },
+  {
+    value: 4,
+    label: "GDP per capita",
+    data: "Logged GDP per capita",
+    domain: [0, 0.22, 0.44, 0.66, 0.88, 1.1, 1.32, 1.54, 1.76, 1.98, 2.2],
+    range: [
+      "#045071",
+      "#066792",
+      "#1881AF",
+      "#3993BA",
+      "#5FABCB",
+      "#FFB570",
+      "#FF9E45",
+      "#FF8719",
+      "#E76F00",
+      "#B45600",
+      "#833F00",
+    ],
+  }
+];
 
+export function sizeLegend(selection, props) {
+  const sizeScale = props.sizeScale;
+  const positionX = props.positionX;
+  const positionY = props.positionY;
+  const ticksCount = props.ticks;
+  const tickFill = props.tickFill;
+  const tickSpacing = props.tickSpacing;
+  const tickPadding = props.tickPadding;
+  const label = props.label;
+  const labelX = props.labelX;
+  const labelY = props.labelY;
+  
+  let legendG = selection
+    .selectAll(".legend--size")
+    .data([null]);
 
-export const getCountryByID = (id) => {
-    return myData.find((d) => d["Country name"] === id);
-  };
-  const tooltipData = (d, i) => {
-    let countrydata;
-    let content = "";
-    content += "<p><strong> Country: </strong>: ";
-    if(i.properties)
-    {
-      countrydata = getCountryByID(i.properties.name);
-      content += i.properties.name + "</p>";
-    }
-    else{
-      countrydata = i;
-      content += i["Country name"] + "</p>";
-    }
-    
-    console.log(i, countrydata);
+  legendG = legendG
+    .enter().append("g")
+    .attr("class", "legend legend--size")
+    .merge(legendG)
+    .attr("transform", `translate(${positionX}, ${positionY})`);
+  
+  const legendLabel = legendG
+    .selectAll(".legend__label")
+    .data([null]);
 
-    // let date, tot_vac,tot_vac_percent;
-    let hap_score,
-      life_exp,
-      freedom,
-      gdp,
-      soc_sup = "No Data";
-    if (countrydata != null) {
-      hap_score = countrydata["Ladder score"];
-      life_exp = countrydata["Healthy life expectancy"];
-      freedom = countrydata["Freedom to make life choices"];
-      gdp = countrydata["Logged GDP per capita"];
-      soc_sup = countrydata["Social support"];
-    }
+  legendLabel
+    .enter().append("text")
+    .attr("class", "legend__label")
+    .merge(legendLabel)
+    .attr("x", labelX)
+    .attr("y", labelY)
+    .text(label);
+  
+  const ticks = legendG
+    .selectAll(".tick")
+    .data(sizeScale.ticks(ticksCount).filter(d => d));
+  
+  const ticksEnter = ticks
+    .enter().append("g")
+    .attr("class", "tick");
 
-    content += "<p><strong> Happiness score: </strong>: ";
-    content += hap_score + "</p>";
-    content += "<p><strong> Healthy life expectancy: </strong>: ";
-    content += life_exp + "</p>";
-    content += "<p><strong> Freedom to make life choices: </strong>: ";
-    content += freedom + "</p>";
-    content += "<p><strong> GDP per capita: </strong>: ";
-    content += gdp + "</p>";
-    content += "<p><strong> Social Support: </strong>: ";
-    content += soc_sup + "</p>";
-    // content += "<p><strong> Total Vaccinations: </strong>: "
-    // content += tot_vac + "</p>";
-    // content += "<p><strong> Total Vaccinations (%): </strong>: "
-    // content += tot_vac_percent + "</p>";
+  ticksEnter
+    .merge(ticks)
+    .attr("transform", (d, i) => `translate(0, ${i * tickSpacing})`);
 
-    d3.select(".infoPanel").html("").append("text").html(content);
-    // console.log(i.properties);
-  };
-  export const renderScatter = () => {
+  ticks.exit().remove();
+  
+  ticksEnter
+    .append("circle")
+    .merge(ticks.select("circle"))
+    .attr("r", sizeScale)
+    .attr("fill", tickFill);
+  
+  ticksEnter
+    .append("text")
+    .merge(ticks.select("text"))
+    .attr("x", tickPadding)
+    .text(d => d);
+}
 
-    var margin = {top: 10, right: 30, bottom: 30, left: 60},
-    width = 460 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+export const trimString = (str) => {
+  return str.split(".").join("").split(" ").join("");
+}
 
-    var svg = d3
-      .select(".scatter_plot")
-      .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform",
-      "translate(" + margin.left + "," + margin.top + ")");
-
-    // Add X axis
-    var x = d3.scaleLinear().domain([0, 15]).range([0, width]);
-    svg
-      .append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
-
-    // Add Y axis
-    var y = d3.scaleLinear().domain([0, 10]).range([height, 0]);
-    svg.append("g").call(d3.axisLeft(y));
-
-    var radiusScale = d3.scaleLinear().domain([40, 100]).range([0.1, 10]);
-    // Add dots
-    svg
-      .append("g")
-      .selectAll("dot")
-      .data(myData)
-      .enter()
-      .append("circle")
-      .attr("cx", function (d) {
-        console.log(d[["Logged GDP per capita"]]);
-        return x(d["Logged GDP per capita"]);
-      })
-      .attr("cy", function (d) {
-        return y(d["Ladder score"]);
-      })
-      .attr("r", d => {
-        return radiusScale(d["Healthy life expectancy"]);
-      })
-      .style("fill", "#69b3a2")
-      .style("opacity", 0.6)
-      .on("mouseover",  function (d, i) {
-        console.log(d, i);
-        tooltipData(d, i);
-      })
-    }
-  export const renderMap = () => {
-    console.log("rendering map...");
-
-    
-    // const width = window.innerWidth * 0.9,
-    //   height = window.innerHeight * 0.9; //1600, height = 1000;
-    // const width = d3.select(".container").style('width').slice(0, -2)
-    // const height = d3.select(".container").style('height').slice(0, -2)
-
-    const svg = d3
-      .select(".world_map")
-      .append("svg")
-      .attr("width", "1000")
-      .attr("height", "540px")
-      .style("margin-top", window.innerHeight * 0.05)
-      .style("margin-left", window.innerWidth * 0.05)
-      .call(
-        d3.zoom().on("zoom", function (event) {
-          g.attr("transform", event.transform);
-        })
-      );
-    var g = svg.append("g");
-
-    console.log(myData);
-    // console.log(land);
-    //const tooltip = d3.select(".world_map").append("div").attr("class", "tooltip");
-    // create a tooltip
-
-    let colorScale = d3
-      .scaleLinear()
-      .domain([2.0, 8.0])
-      .range(d3.schemeBlues[5]);
-
-    let countries = g
-      .selectAll("path")
-      .data(land)
-      .enter()
-      .append("path")
-      .attr("class", "country")
-      .attr("d", path)
-      .attr("fill", (d) => {
-        //console.log(d.properties.iso_a3)
-        let countrydata = getCountryByID(d.properties.name);
-        // console.log(countrydata)
-        return countrydata ? colorScale(countrydata["Ladder score"]) : "white";
-      })
-      .on("mouseover", function (d, i) {
-        // console.log(d3.select(this));
-        // d3.selectAll(".country")
-        //   .transition()
-        //   .duration(20)
-        //   .style("opacity", 0.5);
-        d3.select(this)
-          .transition()
-          .duration(20)
-          .attr("opacity", 1)
-          .style("stroke", "red")
-          .style("stroke-width", 4.0);
-
-        tooltipData(d, i);
-
-        //  setTooltipData(i.properties);
-      })
-      .on("mouseleave", function () {
-        // d3.selectAll(".country")
-        //   .transition()
-        //   .duration(20)
-        //   .style("opacity", 1.0)
-        //   .style("stroke", "gray");
-        d3.select(this)
-          .transition()
-          .duration(20)
-          .style("stroke", "gray")
-          .style("opacity", 1.0)
-          .style("stroke-width", 1.0);
-      });
-
-    // g.selectAll("text")
-    //   .data(land)
-    //   .enter()
-    //   .append("text")
-    //   .text(function (d) {
-    //     //console.log(d);
-    //     let countrydata = getCountryByID(d.properties.iso_a3);
-
-    //     return countrydata ? countrydata.total_vaccinations : "";
-    //   })
-    //   .attr("x", function (d) {
-    //     return path.centroid(d)[0];
-    //   })
-    //   .attr("y", function (d) {
-    //     return path.centroid(d)[1];
-    //   })
-    //   .attr("class", "labels");
-  };
+export const round = (num) => {
+  return Math.round(num * 100) / 100;
+}
