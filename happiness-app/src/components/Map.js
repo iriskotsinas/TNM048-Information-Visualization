@@ -6,23 +6,23 @@ import s2017 from "../data/2017.csv";
 import s2018 from "../data/2018.csv";
 import s2019 from "../data/2019.csv";
 import Select from "react-select";
-import { Slider } from 'rsuite';
+import { Slider } from "rsuite";
 import "react-dropdown/style.css";
-import 'rsuite/dist/styles/rsuite-default.css';
-import { optionArray, sizeLegend, trimString, round } from './helper';
+import "rsuite/dist/styles/rsuite-default.css";
+import { optionArray, sizeLegend, trimString, round } from "./helper";
 
 const collection = {
-  "2015" : s2015,
-  "2016" : s2016,
-  "2017" : s2017,
-  "2018" : s2018,
-  "2019" : s2019
-}
+  2015: s2015,
+  2016: s2016,
+  2017: s2017,
+  2018: s2018,
+  2019: s2019,
+};
 
 const projection = d3
   .geoMercator()
   .center([0, 20]) // long and lat starting position
-  .scale(150) // starting zoom position
+  .scale((window.innerHeight+ window.innerWidth)/20) // starting zoom position
   .rotate([10, 0]); // where world split occurs
 
 const path = d3.geoPath(projection);
@@ -58,7 +58,7 @@ const Map = ({ data: { land } }) => {
 
   const clearContent = () => {
     d3.selectAll("svg").remove();
-  }
+  };
 
   const getCountryByID = (id) => {
     return myData.find((d) => d["Country name"] === id);
@@ -77,9 +77,9 @@ const Map = ({ data: { land } }) => {
     }
 
     let hap_score = "No Data",
-        life_exp = "No Data",
-        freedom = "No Data",
-        gdp = "No Data";
+      life_exp = "No Data",
+      freedom = "No Data",
+      gdp = "No Data";
 
     if (countrydata != null) {
       hap_score = countrydata["Ladder score"];
@@ -101,16 +101,22 @@ const Map = ({ data: { land } }) => {
 
   const renderScatter = () => {
     var margin = { top: 10, right: 30, bottom: 80, left: 80 },
-      width = 1000 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      width = window.innerWidth / 2 - margin.left - margin.right,
+      height = window.innerHeight / 2 - margin.top - margin.bottom;
 
     var svg = d3
       .select(".scatter_plot")
       .append("svg")
+      //responsive SVG needs these 2 attributes and no width and height attr
+      // .attr("preserveAspectRatio", "xMinYMin meet")
+      // .attr("viewBox", "0 0 1000 400")
+      // //class to make it responsive
+      // .classed("svg-content-responsive", true)
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .attr("preserveAspectRatio", "xMinYMin meet");
 
     // Add X axis
     var x = d3.scaleLinear().domain([0, 2.2]).range([0, width]);
@@ -122,8 +128,11 @@ const Map = ({ data: { land } }) => {
     // Add Y axis
     var y = d3.scaleLinear().domain([2, 8]).range([height, 0]);
     svg.append("g").call(d3.axisLeft(y));
-
-    var radiusScale = d3.scaleLinear().domain([0, 1.2]).range([5, 15]);
+    var range = [8, 11, 14, 17].map(function(x) {return x * Math.abs(Math.log(window.innerHeight/window.innerWidth))});
+    var radiusScale = d3
+      .scaleLinear()
+      .domain([0.5, 1, 1.5, 2])
+      .range(range);
     let colorScale = d3
       .scaleThreshold()
       .domain(options.domain)
@@ -139,9 +148,7 @@ const Map = ({ data: { land } }) => {
       .append("circle")
       .attr("class", "scatter")
       .attr("id", function (d, i) {
-        return (
-          "circle-" + trimString(d["Country name"])
-        );
+        return "circle-" + trimString(d["Country name"]);
       })
       .attr("cx", function (d) {
         return x(d["Logged GDP per capita"]);
@@ -157,22 +164,22 @@ const Map = ({ data: { land } }) => {
       })
 
       .on("mouseover", function (d, i) {
-        d3.select(this).attr("r", 20);
+        d3.select(this).attr("r", 15);
         tooltipData(d, i);
-        d3.select(
-          "#map-" + trimString(i["Country name"])
-        ).attr("fill", "black");
+        d3.select("#map-" + trimString(i["Country name"])).attr(
+          "fill",
+          "black"
+        );
       })
 
       .on("mouseout", function (d, i) {
-        d3.selectAll(".country")
-          .attr("fill", function (d) {
-            let countrydata = getCountryByID(d.properties.name);
+        d3.selectAll(".country").attr("fill", function (d) {
+          let countrydata = getCountryByID(d.properties.name);
 
-            return countrydata
-              ? colorScale(countrydata[options.data])
-              : "darkgrey";
-          });
+          return countrydata
+            ? colorScale(countrydata[options.data])
+            : "darkgrey";
+        });
 
         d3.select(this)
           .transition()
@@ -199,14 +206,15 @@ const Map = ({ data: { land } }) => {
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .text("Happiness score");
-    
+
     const sizeMax = 12;
-    const sizeScale = d3.scaleSqrt()
-      .range([0, sizeMax])
-      .domain([0, 2.0]);
+    const sizeScale = d3
+      .scaleLinear()
+      .range([8, 11, 14, 17])
+      .domain([0.5, 1, 1.5, 2]);
 
     sizeLegend(svg, {
-      sizeScale: sizeScale,
+      sizeScale: radiusScale,
       positionX: 750,
       positionY: 200,
       ticks: 3,
@@ -215,18 +223,24 @@ const Map = ({ data: { land } }) => {
       tickPadding: 16,
       label: "Healthy life expectancy",
       labelX: -20,
-      labelY: -30
+      labelY: -30,
     });
-  };  
+  };
 
   const renderMap = () => {
     console.log("rendering map...");
-
+    const height= window.innerHeight / 2;
+    const width = window.innerWidth / 2;
     const svg = d3
       .select(".world_map")
       .append("svg")
-      .attr("width", "1000")
-      .attr("height", "400px")
+      //responsive SVG needs these 2 attributes and no width and height attr
+      // .attr("preserveAspectRatio", "xMinYMin meet")
+      // .attr("viewBox", "0 0 1000 400")
+      // //class to make it responsive
+      // .classed("svg-content-responsive", true)
+      .attr("width", width)
+      .attr("height", height)
       .style("margin-top", window.innerHeight * 0.05)
       .style("margin-left", window.innerWidth * 0.05)
       .call(
@@ -251,10 +265,7 @@ const Map = ({ data: { land } }) => {
         let countrydata = getCountryByID(d.properties.name);
 
         if (countrydata)
-          return (
-            "map-" +
-            trimString(countrydata["Country name"])
-          );
+          return "map-" + trimString(countrydata["Country name"]);
       })
       .attr("d", path)
       .attr("fill", (d) => {
@@ -320,11 +331,13 @@ const Map = ({ data: { land } }) => {
       .axisBottom(ticks)
       .tickSize(10)
       .tickValues(colorScale.domain());
-
-    const legend = svg
+    const legend_container = svg
+      .append("g")
+      .attr("class", "legend_container")
+      .attr("transform", `translate(70, ${height*0.9})`);
+    const legend = legend_container
       .append("g")
       .attr("class", "legend")
-      .attr("transform", "translate(70, 370)")
       .call(xAxis);
 
     const legendColors = function (legendColor) {
@@ -350,26 +363,26 @@ const Map = ({ data: { land } }) => {
         return colorScale(d[0]);
       });
 
-    svg
+    legend_container
       .append("g")
       .attr("class", "noDataLegend")
-      .attr("transform", "translate(70, 350)")
+      .attr("transform", "translate(0, -20)")
       .insert("rect")
       .attr("height", 10)
       .attr("width", 25)
       .attr("fill", "darkgrey");
 
-    svg
+    legend_container
       .append("text")
-      .attr("x", 20)
-      .attr("y", 360)
+      .attr("x", -50)
+      .attr("y", -10)
       .text("No Data")
       .style("font-size", 12);
 
-    svg
+    legend_container
       .append("text")
-      .attr("x", 20)
-      .attr("y", 380)
+      .attr("x", -50)
+      .attr("y", 10)
       .text("Legend")
       .style("font-size", 12);
   };
@@ -402,27 +415,31 @@ const Map = ({ data: { land } }) => {
             <strong>GDP per capita: </strong>
           </p>
         </div>
-        <Select
-          options={optionArray}
-          value={options}
-          onChange={handleChange}
-          placeholder="Select an option"
-        />
+
         <div className="spacer">
+          <Select
+            options={optionArray}
+            value={options}
+            onChange={handleChange}
+            placeholder="Select an option"
+          />
+           <div className="spacer"/>
           <Slider
             className="slider"
             graduated={true}
             min={2015}
             max={2019}
             defaultValue={2015}
-            renderMark={mark => {
+            renderMark={(mark) => {
               if ([2015, 2016, 2017, 2018, 2019].includes(mark)) {
                 return <span>{mark}</span>;
               }
               return null;
             }}
             value={year}
-            onChange={(d) => {setYear(d)}}
+            onChange={(d) => {
+              setYear(d);
+            }}
           />
         </div>
       </div>

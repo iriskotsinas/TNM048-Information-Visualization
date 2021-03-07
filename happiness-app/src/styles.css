@@ -21,13 +21,9 @@ pre {
   font-size: 11px;
   fill: #3c373d;
 }
-.container{
-  display:flex;
-  background-color: rgb(255, 255, 255);
 
-}
 .infoPanel {
-  margin-right: 5vw;
+  margin-right: 5em;
   background-color: rgb(255, 255, 255);
   padding: 3em;
   width: 25em;
@@ -37,4 +33,14 @@ pre {
 .spacer{
   margin: 2em;
   padding: 1em;
+}
+.container{
+  display:flex;
+  background-color: rgb(255, 255, 255);
+
+}
+.responsive {
+  display: flex;
+  top: 10px;
+  left: 0;
 }
