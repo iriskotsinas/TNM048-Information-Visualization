@@ -130,10 +130,11 @@ const Map = ({ data: { land } }) => {
     var y = d3.scaleLinear().domain([2, 8]).range([height, 0]);
     svg.append("g").call(d3.axisLeft(y));
     var range = [8, 11, 14, 17].map(function(x) {return x * Math.abs(Math.log(window.innerHeight/window.innerWidth))});
+    console.log(range)
     var radiusScale = d3
       .scaleLinear()
-      .domain([0.5, 1, 1.5, 2])
-      .range(range);
+      .domain([0.2, 1.2])
+      .range([5, 15, 25, 35]);
     let colorScale = d3
       .scaleThreshold()
       .domain(options.domain)
@@ -208,17 +209,12 @@ const Map = ({ data: { land } }) => {
       .style("text-anchor", "middle")
       .text("Happiness score");
 
-    const sizeMax = 12;
-    const sizeScale = d3
-      .scaleLinear()
-      .range([8, 11, 14, 17])
-      .domain([0.5, 1, 1.5, 2]);
 
     sizeLegend(svg, {
       sizeScale: radiusScale,
-      positionX: 750,
-      positionY: 200,
-      ticks: 3,
+      positionX: width*0.8,
+      positionY: height*0.4,
+      ticks: 4,
       tickFill: "grey",
       tickSpacing: 35,
       tickPadding: 16,
@@ -332,10 +328,12 @@ const Map = ({ data: { land } }) => {
       .axisBottom(ticks)
       .tickSize(10)
       .tickValues(colorScale.domain());
+
     const legend_container = svg
       .append("g")
       .attr("class", "legend_container")
       .attr("transform", `translate(70, ${height*0.9})`);
+      
     const legend = legend_container
       .append("g")
       .attr("class", "legend")
