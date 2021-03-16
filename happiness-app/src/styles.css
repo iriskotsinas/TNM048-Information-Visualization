@@ -4,12 +4,15 @@ body {
   font-family: 'Poppins', sans-serif;
   background-color: rgb(221, 221, 221);
 }
+
 pre {
   font-size: 7em;
 }
+
 .world_map {
   display:inline-block;
 }
+
 .country {
 
   stroke: #ffffff;
@@ -30,17 +33,24 @@ pre {
   border-radius: 25px;
   color: rgb(49, 22, 0);
 }
+
 .spacer{
   margin: 2em;
   padding: 1em;
 }
+
 .container{
   display:flex;
   background-color: rgb(255, 255, 255);
-
 }
+
 .responsive {
   display: flex;
   top: 10px;
   left: 0;
+}
+
+.side {
+  margin: 2em;
+  height: 50%;
 }

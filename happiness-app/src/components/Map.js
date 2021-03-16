@@ -420,7 +420,7 @@ const Map = ({ data: { land } }) => {
           </p>
         </div>
 
-        <div className="spacer">
+        <div className="side">
           {/* Drop-down menu for the user to change what factor is visualized */}
           <Select
             options={optionArray}
@@ -448,32 +448,33 @@ const Map = ({ data: { land } }) => {
             }}
           />
           <div className="spacer"/>
-          <div className="spacer"/>
-          <h2>Visualization of The World Happiness</h2>
-          <p>
-            The data visualized on this website is collected from The Happiness Reports
-            of 2015-2019. The report is a landmark survey of the state of global happiness 
-            that ranks 156 countries by how happy their inhabitants perceive themselves to be. 
-            The World Happiness Report is a publication of the Sustainable Development 
-            Solutions Network, powered by data from the Gallup World Poll.
-          </p>
-          <p>
-            The map visualizes the option chosen in the drop-down menu. 
-            If you want to change which data is displayed in the map, 
-            please choose another option in the menu.
-          </p>
-          <p>
-            The scatter plot visualizes the correlation between GDP per 
-            capita and the happiness score, where each point represents a country. 
-            The size of the point represents the healthy life expectancy of the country.
-          </p>
-          <p>
-            The gradient colors in the map are connected to the colors of the points 
-            in the scatter plot.
-          </p>
-          <p>
-            You can use the slider to visualize data from another year.
-          </p>
+          <div className="text">
+            <h2>Visualization of World Happiness</h2>
+            <p>
+              The data visualized on this website is collected from The Happiness Reports
+              of 2015-2019. The report is a landmark survey of the state of global happiness 
+              that ranks 156 countries by how happy their inhabitants perceive themselves to be. 
+              The World Happiness Report is a publication of the Sustainable Development 
+              Solutions Network, powered by data from the Gallup World Poll.
+            </p>
+            <p>
+              The map visualizes the option chosen in the drop-down menu. 
+              If you want to change which data is displayed in the map, 
+              please choose another option in the menu.
+            </p>
+            <p>
+              The scatter plot visualizes the correlation between GDP per 
+              capita and the happiness score, where each point represents a country. 
+              The size of the point represents the healthy life expectancy of the country.
+            </p>
+            <p>
+              The gradient colors in the map are connected to the colors of the points 
+              in the scatter plot.
+            </p>
+            <p>
+              You can use the slider to visualize data from another year.
+            </p>
+          </div>
         </div>
       </div>
     </div>
