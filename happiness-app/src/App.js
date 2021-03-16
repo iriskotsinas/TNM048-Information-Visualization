@@ -1,18 +1,17 @@
 import './styles.css';
 import useData from './components/useData';
 import Map from './components/Map';
-import { useEffect } from 'react';
 
 function App() {
 
+  // Get data from world map json-file
   const data = useData();
 
   if (!data) {
     return <pre>Loading...</pre>
   }
 
-  console.log(data);
-
+  // Render Map-component
   return (
     <div>
       <Map data={data}/>

@@ -12,6 +12,7 @@ import "react-dropdown/style.css";
 import "rsuite/dist/styles/rsuite-default.css";
 import { optionArray, sizeLegend, trimString, round } from "./helper";
 
+// Object with data from each year
 const collection = {
   2015: s2015,
   2016: s2016,
@@ -29,20 +30,24 @@ const projection = d3
 const path = d3.geoPath(projection);
 
 const Map = ({ data: { land } }) => {
+  // States
   const [myData, setData] = useState(null);
   const [options, setOptions] = useState(optionArray[0]);
   const [year, setYear] = useState(2015);
 
+  // Loading data from csv-files
   const loadData = () => {
     d3.csv(collection[year]).then((stats) => {
       setData(stats);
     });
   };
 
+  // If year is set, call function loadData()
   useEffect(() => {
     loadData();
   }, [year]);
 
+  // If myData is set, call functions
   useEffect(() => {
     if (!myData) return;
     clearContent();
@@ -50,6 +55,7 @@ const Map = ({ data: { land } }) => {
     renderScatter();
   }, [myData]);
 
+  // If options is set, call functions
   useEffect(() => {
     if (!myData) return;
     clearContent();
@@ -61,10 +67,12 @@ const Map = ({ data: { land } }) => {
     d3.selectAll("svg").remove();
   };
 
+  // Match country with ID
   const getCountryByID = (id) => {
     return myData.find((d) => d["Country name"] === id);
   };
 
+  // Get tooltip data to be shown when hovering
   const tooltipData = (d, i) => {
     let countrydata;
     var content = "";
@@ -100,6 +108,7 @@ const Map = ({ data: { land } }) => {
     d3.select(".infoPanel").html("").append("text").html(content);
   };
 
+  // Render scatter plot
   const renderScatter = () => {
     var margin = { top: 10, right: 30, bottom: 80, left: 80 },
       width = window.innerWidth / 2 - margin.left - margin.right,
@@ -108,11 +117,6 @@ const Map = ({ data: { land } }) => {
     var svg = d3
       .select(".scatter_plot")
       .append("svg")
-      //responsive SVG needs these 2 attributes and no width and height attr
-      // .attr("preserveAspectRatio", "xMinYMin meet")
-      // .attr("viewBox", "0 0 1000 400")
-      // //class to make it responsive
-      // .classed("svg-content-responsive", true)
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
@@ -164,7 +168,7 @@ const Map = ({ data: { land } }) => {
       .style("fill", function (d) {
         return colorScale(d[options.data]);
       })
-
+      // Add what should happen when hovering (country turns black in map)
       .on("mouseover", function (d, i) {
         d3.select(this).attr("r", 15);
         tooltipData(d, i);
@@ -173,7 +177,6 @@ const Map = ({ data: { land } }) => {
           "black"
         );
       })
-
       .on("mouseout", function (d, i) {
         d3.selectAll(".country").attr("fill", function (d) {
           let countrydata = getCountryByID(d.properties.name);
@@ -189,7 +192,7 @@ const Map = ({ data: { land } }) => {
           .attr("r", radiusScale(i["Healthy life expectancy"]));
       });
 
-    // text label for the x axis
+    // Text label for the x-axis
     svg
       .append("text")
       .attr(
@@ -199,7 +202,7 @@ const Map = ({ data: { land } }) => {
       .style("text-anchor", "middle")
       .text("GDP per capita");
 
-    // text label for the y axis
+    // Text label for the y-axis
     svg
       .append("text")
       .attr("transform", "rotate(-90)")
@@ -209,7 +212,7 @@ const Map = ({ data: { land } }) => {
       .style("text-anchor", "middle")
       .text("Happiness score");
 
-
+    // Add legend for size of scatter points, call function from helper-file
     sizeLegend(svg, {
       sizeScale: radiusScale,
       positionX: width*0.8,
@@ -224,6 +227,7 @@ const Map = ({ data: { land } }) => {
     });
   };
 
+  // Render world map
   const renderMap = () => {
     console.log("rendering map...");
     const height= (window.innerHeight / 2)*0.9;
@@ -231,11 +235,6 @@ const Map = ({ data: { land } }) => {
     const svg = d3
       .select(".world_map")
       .append("svg")
-      //responsive SVG needs these 2 attributes and no width and height attr
-      // .attr("preserveAspectRatio", "xMinYMin meet")
-      // .attr("viewBox", "0 0 1000 400")
-      // //class to make it responsive
-      // .classed("svg-content-responsive", true)
       .attr("width", width)
       .attr("height", height)
       .style("margin-top", window.innerHeight * 0.05)
@@ -248,6 +247,7 @@ const Map = ({ data: { land } }) => {
 
     var g = svg.append("g");
 
+    // Create color scale for choropleth map
     let colorScale = d3
       .scaleThreshold()
       .domain(options.domain)
@@ -259,6 +259,7 @@ const Map = ({ data: { land } }) => {
       .append("path")
       .attr("class", "country")
       .attr("id", function (d) {
+        // Get country with ID
         let countrydata = getCountryByID(d.properties.name);
 
         if (countrydata)
@@ -267,9 +268,10 @@ const Map = ({ data: { land } }) => {
       .attr("d", path)
       .attr("fill", (d) => {
         let countrydata = getCountryByID(d.properties.name);
+        // Determine what color the country should be
         return countrydata ? colorScale(countrydata[options.data]) : "darkgrey";
       })
-
+      // Country turns black when hovering
       .on("mouseover", function (d, i) {
         d3.select(this).transition().duration(100).attr("fill", "black");
         var countrydata = getCountryByID(i.properties.name);
@@ -287,9 +289,9 @@ const Map = ({ data: { land } }) => {
             .style("stroke-width", 2)
             .bringElementAsTopLayer();
         }
+        // Connect country with the tooltip data
         tooltipData(d, i);
       })
-
       .on("mouseout", function (d, i) {
         d3.selectAll(".scatter").style("stroke", "transparent");
 
@@ -334,11 +336,13 @@ const Map = ({ data: { land } }) => {
       .attr("class", "legend_container")
       .attr("transform", `translate(70, ${height*0.9})`);
       
+    // Create legend
     const legend = legend_container
       .append("g")
       .attr("class", "legend")
       .call(xAxis);
 
+    // Colors for the legend
     const legendColors = function (legendColor) {
       let d = colorScale.invertExtent(legendColor);
       if (!d[0]) d[0] = ticks.domain()[0];
@@ -386,6 +390,7 @@ const Map = ({ data: { land } }) => {
       .style("font-size", 12);
   };
 
+  // Change selected option in drop-down menu
   const handleChange = (op) => {
     setOptions(op);
   };
@@ -416,6 +421,7 @@ const Map = ({ data: { land } }) => {
         </div>
 
         <div className="spacer">
+          {/* Drop-down menu for the user to change what factor is visualized */}
           <Select
             options={optionArray}
             value={options}
@@ -423,6 +429,7 @@ const Map = ({ data: { land } }) => {
             placeholder="Select an option"
           />
            <div className="spacer"/>
+           {/* Slider component for the user to change year visualized */}
           <Slider
             className="slider"
             graduated={true}

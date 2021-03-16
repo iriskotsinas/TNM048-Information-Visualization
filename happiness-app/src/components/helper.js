@@ -1,3 +1,4 @@
+// Array with the different factors
 export const optionArray = [
   {
     value: 1,
@@ -77,6 +78,7 @@ export const optionArray = [
   }
 ];
 
+// Function for scatter plot legend for the size of the scatter points
 export function sizeLegend(selection, props) {
   const sizeScale = props.sizeScale;
   const positionX = props.positionX;
@@ -138,10 +140,12 @@ export function sizeLegend(selection, props) {
     .text(d => d);
 }
 
+// Trim string
 export const trimString = (str) => {
   return str.split(".").join("").split(" ").join("");
 }
 
+// Round number
 export const round = (num) => {
   return Math.round(num * 100) / 100;
 }
